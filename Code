@@ -1,0 +1,43 @@
+import pandas as pd
+from google.colab import files
+
+uploaded = files.upload()
+df = pd.read_csv("netflix_titles.csv")
+print(df.head())
+
+print("Rows & Columns:", df.shape)
+
+# Fill missing values 
+df["director"] = df["director"].fillna("Unknown")
+df["cast"] = df["cast"].fillna("Not Available")
+df["country"] = df["country"].fillna("Unknown")
+df["rating"] = df["rating"].fillna("Not Rated")
+
+# Drop rows where title is missing (rare case)
+df = df.dropna(subset=["title"])
+
+# 2. Remove Duplicate Rows
+df = df.drop_duplicates()
+
+# 3. Standardize Text Formatting
+df["type"] = df["type"].str.strip().str.title()
+df["country"] = df["country"].str.strip().str.title()
+
+# 4. Convert Date Column
+df["date_added"] = pd.to_datetime(df["date_added"], errors="coerce")
+
+# 5. Clean Column Names
+df.columns = df.columns.str.lower().str.replace(" ", "_")
+
+# 6. Fix Data Types
+df["release_year"] = df["release_year"].astype(int)
+
+# Save Cleaned Dataset
+df.to_csv("netflix_cleaned.csv", index=False)
+
+from google.colab import files
+files.download("netflix_cleaned.csv")
+
+print("\nCleaning Done!")
+print("Cleaned Shape:", df.shape)
+print("File Saved as: netflix_cleaned.csv")
